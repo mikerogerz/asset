@@ -77,7 +77,7 @@ class AssetHelper extends Helper {
       $this->__init();
     }
 		
-    if (Configure::read('debug') && $this->debug == false) {
+    if ((Configure::read('debug') && $this->debug == false) || (Configure::read('Cache.disable'))) {
       return join("\n\t", $this->View->__scripts);
     }
 
@@ -118,7 +118,7 @@ class AssetHelper extends Helper {
                                array_slice($this->View->__scripts, $this->viewScriptCount),
                                array_slice($this->View->__scripts, 0, $this->viewScriptCount)
                              );
-		if (Configure::read('debug') && $this->debug == false) {
+		if ((Configure::read('debug') && $this->debug == false) || (Configure::read('Cache.disable'))) {
 			return;
 		}
 		
