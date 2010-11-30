@@ -39,7 +39,10 @@ class AssetHelper extends Helper {
 		'cssCompression' => 'high_compression',
 		
 		//replace relative img paths in css files with full http://...
-		'fixCssImg' => false
+		'fixCssImg' => false,
+		
+		//include compression delta info in packed files
+		'includeCompressionDelta' => true
 	);
 	
   //Class for localizing JS files if JS I18N plugin is installed
@@ -127,7 +130,7 @@ class AssetHelper extends Helper {
                                array_slice($this->View->__scripts, 0, $this->viewScriptCount)
                              );
 
-	if ((Configure::read('debug') && $this->options['debug'] == false) || (Configure::read('Cache.disable')) {
+	if ((Configure::read('debug') && $this->options['debug'] == false) || Configure::read('Cache.disable')) {
 		return;
 	}
 
@@ -297,12 +300,17 @@ class AssetHelper extends Helper {
             break;
         }
 
-        $delta = 0;
-        if ($origSize > 0) {
-          $delta = (strlen($buffer) / $origSize) * 100;
-        }
-        $scriptBuffer .= sprintf("/* %s.%s (%d%%) */\n", $asset['script'], $type, $delta);
-        $scriptBuffer .= $buffer . "\n\n";
+		if ($this->options['includeCompressionDelta']) {
+			$delta = 0;
+			if ($origSize > 0) {
+				$delta = (strlen($buffer) / $origSize) * 100;
+			}
+			$scriptBuffer .= sprintf("/* %s.%s (%d%%) */\n", $asset['script'], $type, $delta);
+		} else {
+			$scriptBuffer .= sprintf("/* %s.%s */\n", $asset['script'], $type);
+		}
+
+		$scriptBuffer .= $buffer . "\n\n";
       }
 
       //write the file
